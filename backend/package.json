@@ -1,0 +1,16 @@
+{
+  "name": "classtrivia-backend",
+  "version": "1.0.0",
+  "description": "A backend server for ClassTrivia.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "AGPL-3.0-only",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2"
+  }
+}
