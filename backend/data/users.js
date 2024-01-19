@@ -7,7 +7,8 @@ const userSchema = new mongoose.Schema({
     points: Number,
     profilePicUrl: String,
     isTeacher: Boolean,
-    userid: String
+    userid: String,
+    email: String
 });
 
 userSchema.set("toJSON", (doc, rto) => {
