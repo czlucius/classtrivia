@@ -5,6 +5,8 @@ const mongoose = require('mongoose');
 console.log(process.env.MONGODB_URL)
 mongoose.connect(process.env.MONGODB_URL, {
     dbName: "classTrivia"
+}).then(() => {
+    console.log("Connected to MongoDB 🍃")
 })
 const express = require("express")
 const bodyParser = require("body-parser")
@@ -20,5 +22,5 @@ app.use("/api/auth", authRouter)
 
 const PORT = 9109
 app.listen(PORT, () => {
-    console.log(`Listening on ${PORT}`)
+    console.log(`Listening on ${PORT} 🚀`)
 })
