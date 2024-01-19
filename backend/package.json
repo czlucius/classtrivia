@@ -4,7 +4,9 @@
   "description": "A backend server for ClassTrivia.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.jsd"
   },
   "author": "",
   "license": "AGPL-3.0-only",
@@ -12,9 +14,16 @@
     "@aws-sdk/client-s3": "^3.490.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
+    "connect-flash": "^0.1.1",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "image-type": "^5.2.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.0.4"
+    "mongoose": "^8.0.4",
+    "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
   }
 }
