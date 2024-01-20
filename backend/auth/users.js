@@ -52,6 +52,9 @@ authRouter.post("/login", bodyParser.json(), async (req, res) => {
         issued: Date.now()
     }
     const token = await jwt.sign(userObj, jwtToken)
+    res.cookie("ClassTrivia-Token", token, {
+        path: "/"
+    })
     return res.status(200).json({ token, error: false })
 })
 
@@ -83,6 +86,28 @@ authRouter.post("/signup", upload.single("profile-pic"), async (req, res) => {
 
         return res.redirect(decodeURI(url.toString()))
     }
+    const emailCheck = await User.findOne({email: body.email})
+    console.log(emailCheck)
+    if (emailCheck) {
+        // email exists
+        // reject request
+        const url = new URL(req.headers.referer)
+        url.searchParams.set("error", "Email is already registered.")
+
+        return res.redirect(decodeURI(url.toString()))
+    }
+
+    const usernameCheck = await User.findOne({username: body.username})
+    if (usernameCheck) {
+        // email exists
+        // reject request
+        const url = new URL(req.headers.referer)
+        url.searchParams.set("error", "Username taken.")
+
+        return res.redirect(decodeURI(url.toString()))
+    }
+
+
     let hashedPw
     try {
         hashedPw = await bcrypt.hash(body.password, 10)
@@ -93,9 +118,11 @@ authRouter.post("/signup", upload.single("profile-pic"), async (req, res) => {
         return res.redirect(decodeURI(url.toString()))
     }
     const userid = crypto.randomUUID()
+    let filename
 
     if (req.file) {
-        const result = await storage.put(`${userid}-profile`, req.file.buffer)
+        filename = `profile-pic/${userid}`
+        const result = await storage.put(filename, req.file.buffer)
         if (result.error) {
             const url = new URL(req.headers.referer)
             url.searchParams.set("error", "Profile Picture upload failure.")
@@ -108,7 +135,9 @@ authRouter.post("/signup", upload.single("profile-pic"), async (req, res) => {
         hashedPw,
         student: !!body.student,
         username: body.username,
-        userid
+        name: body.name,
+        userid,
+        profilePicUrl: filename ?? undefined
     })
 
     const saved = await user.save()
@@ -125,7 +154,9 @@ authRouter.post("/signup", upload.single("profile-pic"), async (req, res) => {
 
 
     console.log("complete!", token)
-    res.header("X-ClassTrivia-Token", token)
+    res.cookie("ClassTrivia-Token", token, {
+        path: "/"
+    })
     res.redirect("/signup-complete")
 
 
