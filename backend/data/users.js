@@ -7,8 +7,9 @@ const userSchema = new mongoose.Schema({
     points: Number,
     profilePicUrl: String,
     isTeacher: Boolean,
-    userid: String,
-    email: String
+    _id: String,
+    email: String,
+    quizzes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' }]
 });
 
 userSchema.set("toJSON", (doc, rto) => {

@@ -136,7 +136,7 @@ authRouter.post("/signup", upload.single("profile-pic"), async (req, res) => {
         student: !!body.student,
         username: body.username,
         name: body.name,
-        userid,
+        _id: userid,
         profilePicUrl: filename ?? undefined
     })
 
