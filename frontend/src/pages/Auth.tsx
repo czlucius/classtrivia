@@ -63,7 +63,6 @@ export const AuthLogin = () => {
 
     }
 
-
     return (
         <div>
             <Form method="post" onSubmit={submit}>
@@ -108,8 +107,14 @@ export const AuthRegister = () => {
         // Create a blob URL
         setProfilePic(URL.createObjectURL(event.target.files[0]))
     }
-    const urlParams = new URLSearchParams(window.location.search);
+    const url = new URL(window.location.href);
+    const urlParams = url.searchParams
 
+
+    setTimeout(() => {
+        urlParams.delete("error")
+        window.history.replaceState({}, '', `${location.pathname}?${urlParams}`);
+    })
     return (
         <div>
             {urlParams.get("error") ? <Alert variant="danger" style={{width: "fit-content"}} className="ms-auto me-auto">{urlParams.get("error")}</Alert> : null }
@@ -143,7 +148,7 @@ export const AuthRegister = () => {
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                     <Form.Label>Email address
 
-                    <Form.Control type="email" placeholder="Enter email address" name="email"/>
+                    <Form.Control type="email" placeholder="Enter email address" name="email" required/>
                     </Form.Label>
                 </Form.Group>
                 <Form.Group className="mb-3" >
@@ -152,25 +157,30 @@ export const AuthRegister = () => {
                             <InputGroup.Text>
                                 <At/>
                             </InputGroup.Text>
-                            <Form.Control type="text" placeholder="Enter username" name="username"/>
+                            <Form.Control type="text" placeholder="Enter username" name="username" required/>
 
                         </InputGroup>
 
                     </Form.Label>
                 </Form.Group>
                 <Form.Group className="mb-3">
+                    <Form.Label>Name
+                        <Form.Control type="text" placeholder="Enter name" name="name" required/>
+                    </Form.Label>
+                </Form.Group>
+                <Form.Group className="mb-3">
                     <Form.Label>Password
-                    <Form.Control type="password" placeholder="Enter password" name="password"/>
+                    <Form.Control type="password" placeholder="Enter password" name="password" required/>
                     </Form.Label>
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Confirm Password
-                        <Form.Control type="password" placeholder="Confirm password" name="confirm"/>
+                        <Form.Control type="password" placeholder="Confirm password" name="confirm" required />
                     </Form.Label>
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>
-                        <Form.Switch name="student" label="I am a student" defaultChecked/>
+                        <Form.Switch name="student" label="I am a student" defaultChecked required/>
                     </Form.Label>
                 </Form.Group>
                 <Button
