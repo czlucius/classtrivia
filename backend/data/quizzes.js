@@ -5,12 +5,11 @@ const quizzesSchema = new mongoose.Schema({
   questions: [{
     id: String,
     type: String, // Multiple Choice (MCQ), Multi Select (MS)
-    score: Number // Marks awarded for correct answer
+    score: Number, // Marks awarded for correct answer
     choices: [{
       value: String,
       correct: Boolean
     }],
-
   }]
 });
 
