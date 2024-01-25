@@ -6,6 +6,8 @@ import {NotFound404} from "./pages/NotFound404.tsx";
 import {Auth, AuthRegister} from "./pages/Auth.tsx";
 import {RegistrationComplete} from "./pages/RegistrationComplete.tsx";
 import {JoinQuiz} from "./pages/JoinQuiz.tsx";
+import Creation from "./create/create.jsx";
+import Create from "./create/page.jsx";
 
 
 const router = createBrowserRouter([
@@ -25,6 +27,8 @@ function Root() {
             <Route path="/auth" element={<Auth/>}/>
             <Route path="/signup-complete" element={<RegistrationComplete/>}/>
             <Route path="/quiz" element={<JoinQuiz/>}/>
+            <Route path="/create" element={<Create/>}/>
+            {/*<Route path="/edit" element={<Creation/>}/>*/}
         </Routes>
     </div>
 }
