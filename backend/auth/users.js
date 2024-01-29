@@ -11,15 +11,18 @@ const crypto = require("crypto")
 const {S3Interactor} = require("../data/storage");
 const upload = multer()
 const storage = new S3Interactor()
+import { handleRedirectWithError, hashPassword, isEmailUnique, isUsernameUnique, uploadToS3 } from "../utils";
+
+const authRouter = express.Router();
 
 
-const authRouter = new express.Router()
-authRouter.use(expSession({ cookie: { maxAge: 60000 }, secret: process.env.SESSION_SECRET}));
-authRouter.use(flash())
+const authRouter = express.Router();
+authRouter.use(expSession({ cookie: { maxAge: 60000 }, secret: process.env.SESSION_SECRET }));
+authRouter.use(flash());
 
 // Note: these paths should be accessed via secure HTTPS and not insecure HTTP!
 authRouter.post("/login", bodyParser.json(), async (req, res) => {
-    const {email, password} = req.body
+  const { email, password } = req.body;
     console.log(req.body)
     const user = await User.findOne({ email })
     // Refer to `node_modules/bcryptjs/dist/bcrypt.js` for docs
@@ -62,8 +65,7 @@ authRouter.post("/login", bodyParser.json(), async (req, res) => {
 const signupForm = upload.fields([{
     name: ""
 }])
-authRouter.post("/signup", upload.single("profile-pic"), async (req, res) => {
-    const userDetailsRaw = req.body
+
     /*
     {
   fieldname: 'profile-pic',
@@ -74,93 +76,74 @@ authRouter.post("/signup", upload.single("profile-pic"), async (req, res) => {
   size: 22155
 }
      */
-    console.log(req.file, req.body)
+authRouter.post("/signup", upload.single("profile-pic"), async (req, res) => {
+  const userDetailsRaw = req.body;
 
-    const body = req.body
+  // Check if passwords match
+  if (req.body.password !== req.body.confirm) {
+    handleRedirectWithError(res, true, "Passwords do not match.");
+  }
 
+  // Check if email is unique
+  if (!await isEmailUnique(userDetailsRaw.email)) {
+    handleRedirectWithError(res, true, "Email is already registered.");
+  }
 
+  // Check if username is unique
+  if (!await isUsernameUnique(userDetailsRaw.username)) {
+    handleRedirectWithError(res, true, "Username taken.");
+  }
 
-    if (req.body.password !== req.body.confirm) {
-        const url = new URL(req.headers.referer)
-        url.searchParams.set("error", "Passwords do not match.")
+  let hashedPw;
+  try {
+    // Hash the password
+    hashedPw = await hashPassword(userDetailsRaw.password);
+  } catch (err) {
+    handleRedirectWithError(res, true, "Internal Server Error.");
+  }
 
-        return res.redirect(decodeURI(url.toString()))
+  const userid = crypto.randomUUID();
+  let filename;
+
+  if (req.file) {
+    // Upload profile picture to S3
+    filename = `profile-pic/${userid}`;
+    const result = await storage.put(filename, req.file.buffer);
+    if (result.err) {
+      handleRedirectWithError(res, true, "Profile Picture upload failure.");
     }
-    const emailCheck = await User.findOne({email: body.email})
-    console.log(emailCheck)
-    if (emailCheck) {
-        // email exists
-        // reject request
-        const url = new URL(req.headers.referer)
-        url.searchParams.set("error", "Email is already registered.")
+  }
 
-        return res.redirect(decodeURI(url.toString()))
-    }
+  // Create a new User instance
+  const user = new User({
+    email: userDetailsRaw.email,
+    hashedPw,
+    student: !!userDetailsRaw.student,
+    username: userDetailsRaw.username,
+    name: userDetailsRaw.name,
+    _id: userid,
+    profilePicUrl: filename ?? undefined
+  });
 
-    const usernameCheck = await User.findOne({username: body.username})
-    if (usernameCheck) {
-        // email exists
-        // reject request
-        const url = new URL(req.headers.referer)
-        url.searchParams.set("error", "Username taken.")
+  // Save the user to the database
+  const saved = await user.save();
 
-        return res.redirect(decodeURI(url.toString()))
-    }
+  // Create a JWT token
+  const tokenObj = {
+    email: saved.email,
+    userid,
+    id: saved.id.toString(),
+    issued: Date.now()
+  };
 
+  const token = await jwt.sign(tokenObj, process.env.JWT_TOKEN);
 
-    let hashedPw
-    try {
-        hashedPw = await bcrypt.hash(body.password, 10)
-    } catch (err) {
-        const url = new URL(req.headers.referer)
-        url.searchParams.set("error", "Internal Server Error.")
+  // Set the token in a cookie and redirect
+  res.cookie("ClassTrivia-Token", token, {
+    path: "/"
+  });
+  res.redirect("/signup-complete");
+});
 
-        return res.redirect(decodeURI(url.toString()))
-    }
-    const userid = crypto.randomUUID()
-    let filename
-
-    if (req.file) {
-        filename = `profile-pic/${userid}`
-        const result = await storage.put(filename, req.file.buffer)
-        if (result.error) {
-            const url = new URL(req.headers.referer)
-            url.searchParams.set("error", "Profile Picture upload failure.")
-
-            return res.redirect(decodeURI(url.toString()))
-        }
-    }
-    const user = new User({
-        email: body.email,
-        hashedPw,
-        student: !!body.student,
-        username: body.username,
-        name: body.name,
-        _id: userid,
-        profilePicUrl: filename ?? undefined
-    })
-
-    const saved = await user.save()
-
-    const tokenObj = {
-        email: saved.email,
-        userid,
-        id: saved.id.toString(),
-        issued: Date.now()
-
-    }
-
-    const token = await jwt.sign(tokenObj, process.env.JWT_TOKEN)
-
-
-    console.log("complete!", token)
-    res.cookie("ClassTrivia-Token", token, {
-        path: "/"
-    })
-    res.redirect("/signup-complete")
-
-
-
-})
-
-module.exports = {authRouter}
+export { authRouter };
+This modification incorporates the functions from 
