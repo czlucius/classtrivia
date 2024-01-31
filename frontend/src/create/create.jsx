@@ -1,5 +1,5 @@
 "use client";
-import React, {useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 // import Image from 'next/image'
 import TextareaAutosize from 'react-textarea-autosize';
 import {
@@ -11,12 +11,49 @@ import {
     Form,
     Offcanvas,
     Row,
-    Col, Image,
+    Col, Image, Spinner,
 } from "react-bootstrap";
+import {useLocation, useNavigate} from "react-router-dom";
+import {putQuestion} from "../services/questionStore";
+import reduxStore from "../services/reduxStore";
+import {useDispatch} from "react-redux";
+
+
 
 export function Creation() {
+
+    /*
+    {
+                             id: qnid,
+                             type: qntype,
+                             options: qnoptions,
+                             title: qntitle,
+                             seconds: qnseconds,
+                             point: qnpoint,
+                             image: qnimage,
+                         }
+     */
     {/*Show when called, for modal and dropdowns*/
     }
+    const {state} = useLocation()
+    if (!state) {
+        alert("No state!")
+    }
+    const {
+        id: qnid,
+        type: qntype,
+        options: qnoptions1,
+        title: qntitle,
+        seconds: qnseconds,
+        point: qnpoint,
+        image: qnimage
+        ,
+        correct: qncorrect
+    } = state.question
+    console.log("State is", state)
+
+    let qnoptions = qnoptions1
+
     const [showModal, setShowModal] = useState(false);
     const [showOffcanvas, setShowOffcanvas] = useState(false);
 
@@ -26,26 +63,132 @@ export function Creation() {
     const handleCloseOffcanvas = () => setShowOffcanvas(false);
     const handleShowOffcanvas = () => setShowOffcanvas(true);
 
-    const [backgroundImage, setBackgroundImage] = useState(null);
+    const [backgroundImage, setBackgroundImage] = useState(qnimage);
+    const [title, setTitle] = useState(qntitle ?? "")
+
+
+    const [timeLimit, setTimeLimit] = useState(qnseconds ?? 60);
+
+    const [questionType, setQuestionType] = useState(qntype);
+
+    const [point, setPoint] = useState(qnpoint)
+
+    const [load, setLoad] = useState(false)
+    function showSpinner(callback) {
+        setLoad(true)
+        setTimeout(() => {
+            callback()
+            setLoad(false)
+        }, 2000)
+    }
 
     const handleImageUpload = (event) => {
         const file = event.target.files[0];
-        const reader = new FileReader();
-
-        reader.onloadend = () => {
-            setBackgroundImage(reader.result);
-        };
+        window.URL.revokeObjectURL(backgroundImage)
+        const localImageUrl =  window.URL.createObjectURL(file);
+        // const reader = new FileReader();
+        //
+        // reader.onloadend = () => {
+        //     setBackgroundImage(reader.result);
+        // };
 
         if (file) {
-            reader.readAsDataURL(file);
+            setBackgroundImage(localImageUrl)
         }
     };
 
 
-    const [timeLimit, setTimeLimit] = useState(10);
 
-    const [questionType, setQuestionType] = useState('MCQ');
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+    function save() {
+        const data = getCorrectAndOptions()
+        const question = {
+            id: qnid,
+            type: questionType,
+            image: backgroundImage,
+            point,
+            title,
+            seconds: timeLimit,
+            correct: data.correct,
+            options: data.options.current
+        }
+        dispatch(putQuestion({id: qnid, question}))
+        navigate("/create")
+    }
 
+
+    useEffect(() => {
+        let cI = []
+        console.log("qncorrect", qncorrect)
+        for (let i =0 ;i<qnoptions.length;i++) {
+            console.log(qnoptions[i])
+
+            if (qncorrect.includes(qnoptions[i])) {
+                cI.push(i)
+            }
+        }
+        console.log("cI is", cI)
+        const reference = {
+            "MCQ": "options", "MSQ": "options-msq", "True/False": "options-ft", "Open-Ended": "options-oe"
+        }
+        const es = document.getElementsByName(reference[questionType] ?? "options")
+         for (const k of cI) {
+            console.log(cI, k, cI.includes(k))
+            if (es[k]) {es[k].checked = true}
+        }
+    }, []);
+
+
+    const options = useRef(qnoptions.concat())
+
+
+    function getCorrectAndOptions() {
+        let correct
+        const reference = {
+            "MCQ": "options", "MSQ": "options-msq", "True/False": "options-ft", "Open-Ended": "options-oe"
+        }
+        const elements = [...document.getElementsByName(reference[questionType] ?? "options")]
+        let i = 0
+
+        switch (questionType) {
+            case "MCQ":
+                correct = [options.current[elements.findIndex(elem => elem.checked)]]
+                break
+            case "MSQ":
+                correct = []
+                for (const elem of elements) {
+                    if (elem.checked) {
+                        correct.push(options.current[i])
+                    }
+                    i++
+                }
+                break
+            case "True/False":
+                options.current = (["True", "False"])
+                correct = options.current[elements.findIndex(elem => elem.checked)]
+                break
+            case "Open-Ended":
+                correct = options.current
+                break
+        }
+
+        console.log("correct is", correct)
+        console.log("options is", options)
+
+
+        return {
+            correct,
+            options
+        }
+
+    }
+
+    function editOptions(num, event) {
+        options.current[num] = event.target.value
+    }
+
+    console.log("opt", options)
     return (
         <div>
             <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary">
@@ -68,80 +211,92 @@ export function Creation() {
                     <Navbar.Collapse id="responsive-navbar-nav">
                         <Nav className="me-auto">
 
-                            {/*UI CREATE TITLE*/}
-                            <>
-                                <Button variant="outline-primary" onClick={handleShowModal}>
-                                    Update the Question Information here
-                                </Button>
-                                <Modal
-                                    show={showModal}
-                                    onHide={handleCloseModal}
-                                    backdrop="static"
-                                    keyboard={false}
-                                >
-                                    <Modal.Header closeButton>
-                                        <Modal.Title>Information</Modal.Title>
-                                    </Modal.Header>
-                                    <Modal.Body>
-                                        <Form>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                                <Form.Label>Question Number</Form.Label>
-                                                <Form.Select aria-label="Information">
-                                                    {[...Array(100)].map((_, i) => (
-                                                        <option key={i} value={`Question ${i + 1}`}>
-                                                            {`Question ${i + 1}`}
-                                                        </option>
-                                                    ))}
-                                                </Form.Select>
-                                            </Form.Group>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                                                <Form.Label>Details</Form.Label>
-                                                <Form.Select aria-label="Question Type">
-                                                    <option>Multiple-Choice-Question</option>
-                                                    <option>Multiple-Select-Question</option>
-                                                    <option>True or False</option>
-                                                    <option>Open-Ended</option>
-                                                </Form.Select>
-                                            </Form.Group>
-                                        </Form>
-                                    </Modal.Body>
-                                    <Modal.Footer>
-                                        <Button variant="secondary" onClick={handleCloseModal}>
-                                            Close
-                                        </Button>
-                                        <Button variant="primary">Update</Button>
-                                    </Modal.Footer>
-                                </Modal>
-                            </>
+                            {/*/!*UI CREATE TITLE*!/*/}
+                            {/*<>*/}
+                            {/*    <Button variant="outline-primary" onClick={handleShowModal}>*/}
+                            {/*        Update the Question Information here*/}
+                            {/*    </Button>*/}
+                            {/*    <Modal*/}
+                            {/*        show={showModal}*/}
+                            {/*        onHide={handleCloseModal}*/}
+                            {/*        backdrop="static"*/}
+                            {/*        keyboard={false}*/}
+                            {/*    >*/}
+                            {/*        <Modal.Header closeButton>*/}
+                            {/*            <Modal.Title>Information</Modal.Title>*/}
+                            {/*        </Modal.Header>*/}
+                            {/*        <Modal.Body>*/}
+                            {/*            <Form>*/}
+                            {/*                <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">*/}
+                            {/*                    <Form.Label>Question Number</Form.Label>*/}
+                            {/*                    <Form.Select aria-label="Information">*/}
+                            {/*                        {[...Array(100)].map((_, i) => (*/}
+                            {/*                            <option key={i} value={`Question ${i + 1}`}>*/}
+                            {/*                                {`Question ${i + 1}`}*/}
+                            {/*                            </option>*/}
+                            {/*                        ))}*/}
+                            {/*                    </Form.Select>*/}
+                            {/*                </Form.Group>*/}
+                            {/*                <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">*/}
+                            {/*                    <Form.Label>Details</Form.Label>*/}
+                            {/*                    <Form.Select aria-label="Question Type">*/}
+                            {/*                        <option>Multiple-Choice-Question</option>*/}
+                            {/*                        <option>Multiple-Select-Question</option>*/}
+                            {/*                        <option>True or False</option>*/}
+                            {/*                        <option>Open-Ended</option>*/}
+                            {/*                    </Form.Select>*/}
+                            {/*                </Form.Group>*/}
+                            {/*            </Form>*/}
+                            {/*        </Modal.Body>*/}
+                            {/*        <Modal.Footer>*/}
+                            {/*            <Button variant="secondary" onClick={handleCloseModal}>*/}
+                            {/*                Close*/}
+                            {/*            </Button>*/}
+                            {/*            <Button variant="primary">Update</Button>*/}
+                            {/*        </Modal.Footer>*/}
+                            {/*    </Modal>*/}
+                            {/*</>*/}
 
                         </Nav>
 
                     </Navbar.Collapse>
 
                     <div style={{display: 'flex', justifyContent: 'flex-end'}}>
-                        <Button variant="info" onClick={handleShowOffcanvas}>
+                        <Button variant="info" onClick={handleShowOffcanvas} className="ms-2 me-2">
                             Question Settings
+                        </Button>
+                        <Button variant="primary" onClick={save}>
+                            Save
                         </Button>
                     </div>
 
                 </Container>
             </Navbar>
 
-
+            {/* QUESTION SETTINGS */}
             <Offcanvas show={showOffcanvas} onHide={handleCloseOffcanvas} placement='end'>
                 <Offcanvas.Header closeButton>
                     <Offcanvas.Title>Settings</Offcanvas.Title>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
-                    <Form>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Themes</Form.Label>
-                            <Form.Control type="file" accept="image/*" onChange={handleImageUpload}/>
-                        </Form.Group>
+                    <Form  >
+                        {/*<Form.Group className="mb-3">*/}
+                        {/*    <Form.Label>Themes</Form.Label>*/}
+                        {/*    <Form.Control type="file" accept="image/*" />*/}
+                        {/*</Form.Group>*/}
 
                         <Form.Group className="mb-3">
                             <Form.Label>Question Type</Form.Label>
-                            <Form.Select defaultValue="MCQ" onChange={e => setQuestionType(e.target.value)}>
+                            <Form.Select defaultValue={questionType ?? "MCQ"} onChange={e => {
+                                options.current = ([])
+                                qnoptions = []
+
+
+                                showSpinner(() => {
+
+                                    setQuestionType(e.target.value)
+                                })
+                            }}  >
                                 <option>MCQ</option>
                                 <option>MSQ</option>
                                 <option>True/False</option>
@@ -157,23 +312,32 @@ export function Creation() {
 
                         <Form.Group className="mb-3">
                             <Form.Label>Point</Form.Label>
-                            <Form.Select defaultValue="Yes">
-                                <option>Yes</option>
-                                <option>No</option>
-                            </Form.Select>
+                            <Form.Control defaultValue="Yes" value={point} onChange={(event) => {
+                                const points = event.target.value
+                                const parsed = Number.parseInt(points)
+                                if (! Number.isNaN(parsed)) { setPoint(parsed) }
+                            }} type="number">
+                            </Form.Control>
                         </Form.Group>
 
-                        <div className="d-flex justify-content-center">
-                            <Button variant="primary" type="submit">
-                                Save
-                            </Button>
+
+
+                        <div className="d-flex justify-content-center flex-column align-items-center">
+                            <p>
+                                {load ? <Spinner/> : null}
+
+                            </p>
+                            <p>
+                                Auto-save
+
+                            </p>
                         </div>
                     </Form>
                 </Offcanvas.Body>
             </Offcanvas>
 
-            <div style={{backgroundImage: `url(${backgroundImage})`}}>
-                <Container>
+            <div  >
+                <Container >
                     <Row>
                         <Col></Col>
                         <Col xs={8}>
@@ -181,23 +345,22 @@ export function Creation() {
                                 minRows={2}
                                 maxRows={3}
                                 placeholder="Enter your question here"
+                                value={title}
+                                onChange={(event) => {setTitle(event.target.value)}}
                                 style={{textAlign: 'center', fontSize: '2rem', width: '100%'}}
                                 className="mt-5"
                             />
                         </Col>
                         <Col></Col>
                     </Row>
-                    <Row className="mt-5">
-                        <Col></Col>
-                        <Col xs={5}>
-                            <div style={{border: '2px dashed #000', padding: '50px', textAlign: 'center'}}>
+                    <Row  className="justify-content-center" >
+                            <div style={{border: '2px dashed #000', padding: '50px', textAlign: 'center', width: "fit-content"}}>
+                                {/*<img src={backgroundImage}/>*/}
                                 <label htmlFor="file-upload" style={{cursor: 'pointer'}}>
-                                    <p style={{fontSize: '2rem'}}>+</p>
+                                    {backgroundImage ? <><Image src={backgroundImage} style={{maxHeight: "500px"}} /> <Button variant="danger"  onClick={() => {setBackgroundImage(null)}}>Remove</Button></>: <p style={{fontSize: '2rem'}}>+</p>}
                                 </label>
-                                <input id="file-upload" type="file" accept="image/*" style={{display: 'none'}}/>
+                                <input id="file-upload" type="file" accept="image/*" style={{display: 'none'}} onChange={handleImageUpload}/>
                             </div>
-                        </Col>
-                        <Col></Col>
 
                     </Row>
 
@@ -208,7 +371,7 @@ export function Creation() {
                                     <div className="d-flex justify-content-between align-items-center mb-2 w-100 py-3"
                                          style={{backgroundColor: '#dc3545', color: '#fff'}}>
                                         <span style={{color: '#000', paddingLeft: '10px'}}>1) </span><input type="text"
-                                                                                                            defaultValue="Option 1"
+                                                                                                            defaultValue={qnoptions[0] ?? "Option 1"}
                                                                                                             maxLength="60"
                                                                                                             style={{
                                                                                                                 backgroundColor: '#dc3545',
@@ -216,8 +379,11 @@ export function Creation() {
                                                                                                                 border: 'none',
                                                                                                                 padding: '0 1rem',
                                                                                                                 flexGrow: 1
-                                                                                                            }}/>
+                                                                                                            }}
+                                                                                                             onChange={(event) => {editOptions(0, event)}}
+                                    />
                                         <Form.Check type="radio" id="option1" name="options"
+
                                                     style={{padding: '0 3rem'}}/>
                                     </div>
                                 </Col>
@@ -225,7 +391,7 @@ export function Creation() {
                                     <div className="d-flex justify-content-between align-items-center mb-2 w-100 py-3"
                                          style={{backgroundColor: '#007bff', color: '#fff', position: 'relative'}}>
                                         <span style={{color: '#000', paddingLeft: '10px'}}>2) </span><input type="text"
-                                                                                                            defaultValue="Option 2"
+                                                                                                            defaultValue={qnoptions[1] ?? "Option 2"}
                                                                                                             maxLength="60"
                                                                                                             style={{
                                                                                                                 backgroundColor: '#007bff',
@@ -233,7 +399,9 @@ export function Creation() {
                                                                                                                 border: 'none',
                                                                                                                 padding: '0 1rem',
                                                                                                                 flexGrow: 1
-                                                                                                            }}/>
+                                                                                                            }}
+                                                                                                            onChange={(event) => {editOptions(1, event)}}
+                                    />
                                         <Form.Check type="radio" id="option2" name="options"
                                                     style={{padding: '0 3rem'}}/>
                                     </div>
@@ -244,7 +412,7 @@ export function Creation() {
                                     <div className="d-flex justify-content-between align-items-center mb-2 w-100 py-3"
                                          style={{backgroundColor: '#ffc107', color: '#fff'}}>
                                         <span style={{color: '#000', paddingLeft: '10px'}}>3) </span><input type="text"
-                                                                                                            defaultValue="Option 3"
+                                                                                                            defaultValue={qnoptions[2] ?? "Option 3"}
                                                                                                             maxLength="60"
                                                                                                             style={{
                                                                                                                 backgroundColor: '#ffc107',
@@ -252,7 +420,9 @@ export function Creation() {
                                                                                                                 border: 'none',
                                                                                                                 padding: '0 1rem',
                                                                                                                 flexGrow: 1
-                                                                                                            }}/>
+                                                                                                            }}
+                                                                                                            onChange={(event) => {editOptions(2, event)}}
+                                    />
                                         <Form.Check type="radio" id="option3" name="options"
                                                     style={{padding: '0 3rem'}}/>
                                     </div>
@@ -261,7 +431,7 @@ export function Creation() {
                                     <div className="d-flex justify-content-between align-items-center mb-2 w-100 py-3"
                                          style={{backgroundColor: '#28a745', color: '#fff'}}>
                                         <span style={{color: '#000', paddingLeft: '10px'}}>4) </span><input type="text"
-                                                                                                            defaultValue="Option 4"
+                                                                                                            defaultValue= {qnoptions[3] ?? "Option 4"}
                                                                                                             maxLength="60"
                                                                                                             style={{
                                                                                                                 backgroundColor: '#28a745',
@@ -269,7 +439,9 @@ export function Creation() {
                                                                                                                 border: 'none',
                                                                                                                 padding: '0 1rem',
                                                                                                                 flexGrow: 1
-                                                                                                            }}/>
+                                                                                                            }}
+                                                                                                            onChange={(event) => {editOptions(3, event)}}
+                                    />
                                         <Form.Check type="radio" id="option4" name="options"
                                                     style={{padding: '0 3rem'}}/>
                                     </div>
@@ -283,8 +455,9 @@ export function Creation() {
                                     <div className="d-flex justify-content-between align-items-center mb-2 w-100 py-3"
                                          style={{backgroundColor: '#dc3545', color: '#fff'}}>
                                         <span style={{color: '#000', paddingLeft: '10px'}}>1) </span><input type="text"
-                                                                                                            defaultValue="Option 1"
+                                                                                                            defaultValue= {qnoptions[0] ?? "Option 1"}
                                                                                                             maxLength="60"
+                                                                                                            onChange={(event) => {editOptions(0, event)}}
                                                                                                             style={{
                                                                                                                 backgroundColor: '#dc3545',
                                                                                                                 color: '#fff',
@@ -292,7 +465,7 @@ export function Creation() {
                                                                                                                 padding: '0 1rem',
                                                                                                                 flexGrow: 1
                                                                                                             }}/>
-                                        <Form.Check type="checkbox" id="option1" name="options"
+                                        <Form.Check type="checkbox" id="option1" name="options-msq"
                                                     style={{padding: '0 3rem'}}/>
                                     </div>
                                 </Col>
@@ -300,8 +473,9 @@ export function Creation() {
                                     <div className="d-flex justify-content-between align-items-center mb-2 w-100 py-3"
                                          style={{backgroundColor: '#007bff', color: '#fff'}}>
                                         <span style={{color: '#000', paddingLeft: '10px'}}>2) </span><input type="text"
-                                                                                                            defaultValue="Option 2"
+                                                                                                            defaultValue= {qnoptions[1] ?? "Option 2"}
                                                                                                             maxLength="60"
+                                                                                                            onChange={(event) => {editOptions(1, event)}}
                                                                                                             style={{
                                                                                                                 backgroundColor: '#007bff',
                                                                                                                 color: '#fff',
@@ -309,7 +483,7 @@ export function Creation() {
                                                                                                                 padding: '0 1rem',
                                                                                                                 flexGrow: 1
                                                                                                             }}/>
-                                        <Form.Check type="checkbox" id="option2" name="options"
+                                        <Form.Check type="checkbox" id="option2" name="options-msq"
                                                     style={{padding: '0 3rem'}}/>
                                     </div>
                                 </Col>
@@ -319,8 +493,9 @@ export function Creation() {
                                     <div className="d-flex justify-content-between align-items-center mb-2 w-100 py-3"
                                          style={{backgroundColor: '#ffc107', color: '#fff'}}>
                                         <span style={{color: '#000', paddingLeft: '10px'}}>3) </span><input type="text"
-                                                                                                            defaultValue="Option 3"
+                                                                                                            defaultValue= {qnoptions[2] ?? "Option 3"}
                                                                                                             maxLength="60"
+                                                                                                            onChange={(event) => {editOptions(2, event)}}
                                                                                                             style={{
                                                                                                                 backgroundColor: '#ffc107',
                                                                                                                 color: '#fff',
@@ -328,7 +503,7 @@ export function Creation() {
                                                                                                                 padding: '0 1rem',
                                                                                                                 flexGrow: 1
                                                                                                             }}/>
-                                        <Form.Check type="checkbox" id="option3" name="options"
+                                        <Form.Check type="checkbox" id="option3" name="options-msq"
                                                     style={{padding: '0 3rem'}}/>
                                     </div>
                                 </Col>
@@ -336,8 +511,9 @@ export function Creation() {
                                     <div className="d-flex justify-content-between align-items-center mb-2 w-100 py-3"
                                          style={{backgroundColor: '#28a745', color: '#fff'}}>
                                         <span style={{color: '#000', paddingLeft: '10px'}}>4) </span><input type="text"
-                                                                                                            defaultValue="Option 4"
+                                                                                                            defaultValue= {qnoptions[3] ?? "Option 4"}
                                                                                                             maxLength="60"
+                                                                                                            onChange={(event) => {editOptions(3, event)}}
                                                                                                             style={{
                                                                                                                 backgroundColor: '#28a745',
                                                                                                                 color: '#fff',
@@ -345,7 +521,7 @@ export function Creation() {
                                                                                                                 padding: '0 1rem',
                                                                                                                 flexGrow: 1
                                                                                                             }}/>
-                                        <Form.Check type="checkbox" id="option4" name="options"
+                                        <Form.Check type="checkbox" id="option4" name="options-msq"
                                                     style={{padding: '0 3rem'}}/>
                                     </div>
                                 </Col>
@@ -357,28 +533,31 @@ export function Creation() {
                                 <Col xs={6}>
                                     <div className="d-flex justify-content-between align-items-center mb-2 w-100 py-3"
                                          style={{backgroundColor: '#007bff', color: '#fff'}}>
-                                        <input type="text" defaultValue="True" style={{
-                                            backgroundColor: '#007bff',
-                                            color: '#fff',
-                                            border: 'none',
-                                            padding: '0 1rem',
-                                            flexGrow: 1
-                                        }}/>
-                                        <Form.Check type="radio" id="optionTrue" name="options"
+                                        True
+                                        {/*<input type="text" defaultValue="True" style={{*/}
+                                        {/*    backgroundColor: '#007bff',*/}
+                                        {/*    color: '#fff',*/}
+                                        {/*    border: 'none',*/}
+                                        {/*    padding: '0 1rem',*/}
+                                        {/*    flexGrow: 1*/}
+
+                                        {/*}}/>*/}
+                                        <Form.Check type="radio" id="optionTrue" name="options-ft"
                                                     style={{padding: '0 3rem'}}/>
                                     </div>
                                 </Col>
                                 <Col xs={6}>
                                     <div className="d-flex justify-content-between align-items-center mb-2 w-100 py-3"
                                          style={{backgroundColor: '#dc3545', color: '#fff'}}>
-                                        <input type="text" defaultValue="False" style={{
-                                            backgroundColor: '#dc3545',
-                                            color: '#fff',
-                                            border: 'none',
-                                            padding: '0 1rem',
-                                            flexGrow: 1
-                                        }}/>
-                                        <Form.Check type="radio" id="optionFalse" name="options"
+                                        False
+                                        {/*<input type="text" defaultValue="False" style={{*/}
+                                        {/*    backgroundColor: '#dc3545',*/}
+                                        {/*    color: '#fff',*/}
+                                        {/*    border: 'none',*/}
+                                        {/*    padding: '0 1rem',*/}
+                                        {/*    flexGrow: 1*/}
+                                        {/*}}/>*/}
+                                        <Form.Check type="radio" id="optionFalse" name="options-ft"
                                                     style={{padding: '0 3rem'}}/>
                                     </div>
                                 </Col>
@@ -389,7 +568,9 @@ export function Creation() {
                             <Row>
                                 <Col xs={12}>
                                     <textarea rows="3" placeholder="Enter your text here..."
-                                              style={{width: '100%', padding: '1rem'}}/>
+                                              defaultValue= {qnoptions[0] ??""}
+                                              onChange={(event) => {editOptions(0, event)}}
+                                              style={{width: '100%', padding: '1rem'}} name="options-oe"/>
                                 </Col>
                             </Row>
                         </Row>
