@@ -15,23 +15,24 @@ const app = express()
 const http = require("node:http")
 const {io} = require("./io/socket");
 const httpServer = http.createServer(app)
-
-const {createClient} = require("redis")
-const redisClient = createClient({
-    url: "redis-14278.c252.ap-southeast-1-1.ec2.cloud.redislabs.com:14278"
-})
+//
+// const {createClient} = require("redis")
+// const redisClient = createClient({
+//     url: "redis-14278.c252.ap-southeast-1-1.ec2.cloud.redislabs.com:14278"
+// })
 
 const cookieParser = require("cookie-parser")
-
-redisClient.on("connect", () => {
-    console.log("Connected to Redis!")
-})
+const playRouter = require("./play/play.mts")
+// redisClient.on("connect", () => {
+//     console.log("Connected to Redis!")
+// })
 
 
 
 app.use(bodyParser.json())
 app.use(cookieParser())
 app.use("/api/auth", authRouter)
+app.use("/api/play", playRouter)
 
 
 io.on("connection", (socket) => {
@@ -44,4 +45,4 @@ httpServer.listen(PORT, () => {
     console.log(`Listening on ${PORT} 🚀`)
 })
 
-module.exports = {httpServer, redisClient}
+module.exports = {httpServer}
