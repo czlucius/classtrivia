@@ -4,10 +4,13 @@ import {Home} from "./pages/Home.tsx";
 import {Navigation} from "./components/Navigation.tsx";
 import {NotFound404} from "./pages/NotFound404.tsx";
 import {Auth, AuthRegister} from "./pages/Auth.tsx";
-import {RegistrationComplete} from "./pages/RegistrationComplete.tsx";
-import {JoinQuiz} from "./pages/JoinQuiz.tsx";
+// import {RegistrationComplete} from "./pages/RegistrationComplete.tsx";
+import JoinQuiz from "./join/joinquiz.jsx";
 import Creation from "./create/create.jsx";
-import Create from "./create/page.jsx";
+import CreateQuiz from "./create/createquiz.jsx";
+import QuizLibrary from "./library/library.jsx";
+import StartQuiz from './start/startquiz.jsx';
+
 
 
 const router = createBrowserRouter([
@@ -22,13 +25,15 @@ function Root() {
     return <div   style={{height: "100vh"}}>
         <Navigation/>
         <Routes>
-            <Route path="*" element={<NotFound404/>}/>
             <Route path="/" element={<Home/>}/>
-            <Route path="/auth" element={<Auth/>}/>
-            <Route path="/signup-complete" element={<RegistrationComplete/>}/>
+            {/* <Route path="/signup-complete" element={<RegistrationComplete/>}/> */}
             <Route path="/quiz" element={<JoinQuiz/>}/>
-            <Route path="/create" element={<Create/>}/>
-            {/*<Route path="/edit" element={<Creation/>}/>*/}
+            <Route path="/create" element={<CreateQuiz/>}/>
+            <Route path="/edit" element={<Creation/>}/>
+            <Route path="/library" element={<QuizLibrary/>}/>
+            <Route path="/startquiz" element={<StartQuiz/>}/>
+            <Route path="/auth" element={<Auth/>}/>
+            <Route path="*" element={<NotFound404/>}/>
         </Routes>
     </div>
 }
