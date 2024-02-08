@@ -1,16 +1,15 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const quizSchema = new mongoose.Schema({
-    _id: String,
+    title: String,
+    description: String,
+
     questions: [{
         id: String,
-        type: String,
-        photo: String,
-        correctAnswer: [{
-            description: String,
-            correct: Boolean
-        }],
-        value: Number,
-        data: [],
+        title: String,
+        typ: String,
+        image: String,
+        options: [String],
+        correct: [String],
         score: Number,
         seconds: Number
     }]
@@ -18,10 +17,11 @@ const quizSchema = new mongoose.Schema({
 
 quizSchema.set("toJSON", (doc, rto) => {
     rto.id = rto._id.toString()
+    rto.type = rto.typ
     delete rto.hashedPw
     delete rto.__v
 })
 const Quiz = mongoose.model('Quiz', quizSchema);
 
-module.exports = Quiz
+export default Quiz;
 

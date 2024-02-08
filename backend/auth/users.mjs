@@ -1,21 +1,17 @@
-const express = require("express")
-const mongoose = require("mongoose")
-const User = require("../data/users")
-const bcrypt = require("bcryptjs")
-const jwt = require("jsonwebtoken")
-const multer = require("multer")
-const bodyParser = require("body-parser")
-const flash = require("connect-flash")
-const expSession = require("express-session")
-const crypto = require("crypto")
-const {S3Interactor} = require("../data/storage");
+import express from 'express';
+import mongoose from 'mongoose';
+import User from '../data/users.mjs';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import multer from 'multer';
+import bodyParser from 'body-parser';
+import crypto from 'crypto';
+import { S3Interactor } from '../data/storage.mjs';
 const upload = multer()
 const storage = new S3Interactor()
 
 
-const authRouter = new express.Router()
-authRouter.use(expSession({ cookie: { maxAge: 60000 }, secret: process.env.SESSION_SECRET}));
-authRouter.use(flash())
+export const authRouter = new express.Router()
 
 // Note: these paths should be accessed via secure HTTPS and not insecure HTTP!
 authRouter.post("/login", bodyParser.json(), async (req, res) => {
@@ -157,10 +153,10 @@ authRouter.post("/signup", upload.single("profile-pic"), async (req, res) => {
     res.cookie("ClassTrivia-Token", token, {
         path: "/"
     })
+    res.cookie("ClassTrivia-Username", saved.username)
+    res.cookie("ClassTrivia-UserDetails", saved)
     res.redirect("/signup-complete")
 
 
 
 })
-
-module.exports = {authRouter}

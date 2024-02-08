@@ -1,11 +1,35 @@
-const express = require('express');
+import express from 'express';
 const quizRouter = express.Router(); // Use quizRouter 
-const Quizzes = require('../data/quiz'); // pathj for schema
-
-quizRouter.post('/create-quiz', express.json(), async (req, res) => {
+import Quizzes from '../data/quiz.mjs';
+import Quiz from "../data/quiz.mjs";
+import bodyParser from "body-parser"; // path for schema
+quizRouter.use(bodyParser.json())
+quizRouter.post('/create-quiz', async (req, res) => {
   try {
-    const quizData = req.body;
+    /*
+    title: String,
+    description: String,
+
+    questions: [{
+        id: String,
+        title: String,
+        type: String,
+        image: String,
+        options: [String],
+        correct: [String],
+        score: Number,
+        seconds: Number
+    }]
+     */
+    const quizData = {
+      title: req.body.title,
+      description: req.body.description,
+      questions: req.body.questions
+    }
+
+    console.log(req.body, quizData)
     const newQuiz = new Quiz(quizData);
+    console.log(newQuiz)
     const savedQuiz = await newQuiz.save();
     res.status(201).json(savedQuiz);
   } catch (error) {
@@ -14,5 +38,5 @@ quizRouter.post('/create-quiz', express.json(), async (req, res) => {
   }
 });
 
-module.exports = quizRouter;
+export default quizRouter;
 

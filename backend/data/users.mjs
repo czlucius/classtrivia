@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const userSchema = new mongoose.Schema({
     name: String,
     username: String,
@@ -18,4 +18,4 @@ userSchema.set("toJSON", (doc, rto) => {
     delete rto.__v
 })
 const User = mongoose.model('User', userSchema);
-module.exports = User
+export default User;

@@ -10,3 +10,8 @@ charset: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345678
     return code
 }
 
+
+
+export function timeoutPromise(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
