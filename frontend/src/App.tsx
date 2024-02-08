@@ -28,7 +28,7 @@ function Root() {
             <Route path="/signup-complete" element={<RegistrationComplete/>}/>
             <Route path="/quiz" element={<JoinQuiz/>}/>
             <Route path="/create" element={<Create/>}/>
-            {/*<Route path="/edit" element={<Creation/>}/>*/}
+            <Route path="/edit" element={<Creation/>}/>
         </Routes>
     </div>
 }
