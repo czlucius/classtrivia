@@ -1,4 +1,5 @@
 import {createSlice} from "@reduxjs/toolkit";
+import {Question} from "../Question.ts";
 
 const initialState: {
     [id: string]: Question
