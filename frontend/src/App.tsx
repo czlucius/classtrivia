@@ -28,12 +28,17 @@ function Root() {
             <Route path="/" element={<Home/>}/>
             {/* <Route path="/signup-complete" element={<RegistrationComplete/>}/> */}
             <Route path="/quiz" element={<JoinQuiz/>}/>
+<<<<<<< HEAD
             <Route path="/create" element={<CreateQuiz/>}/>
             <Route path="/edit" element={<Creation/>}/>
             <Route path="/library" element={<QuizLibrary/>}/>
             <Route path="/startquiz" element={<StartQuiz/>}/>
             <Route path="/auth" element={<Auth/>}/>
             <Route path="*" element={<NotFound404/>}/>
+=======
+            <Route path="/create" element={<Create/>}/>
+            <Route path="/edit" element={<Creation/>}/>
+>>>>>>> 9e397c69e687744028fb19cfb92bfaed8f387153
         </Routes>
     </div>
 }
