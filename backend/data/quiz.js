@@ -22,4 +22,6 @@ quizSchema.set("toJSON", (doc, rto) => {
     delete rto.__v
 })
 const Quiz = mongoose.model('Quiz', quizSchema);
+
 module.exports = Quiz
+
