@@ -16,6 +16,7 @@ import {useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {putQuestion, removeQuestion} from "../services/questionStore";
 import {updateDesc, updateTitle} from "../services/quizStore";
+import {saveQuiz} from "../services/questionApi.ts";
 
 export function Create() {
     // This state and function control the visibility of the modal
@@ -31,7 +32,7 @@ export function Create() {
             options: [],
             title: "Question Title",
             seconds: 60,
-            point: 100,
+            score: 100,
             image: null
         };
 
@@ -56,6 +57,11 @@ export function Create() {
             }
         })
     }
+
+    async function handleSave() {
+        await saveQuiz(questions, title, desc)
+    }
+
 
     const title = useSelector(state => state.quiz.title)
     const desc = useSelector(state => state.quiz.desc)
@@ -133,9 +139,9 @@ export function Create() {
                     </Nav>
                     <Navbar>
                         {/*Button to exit the quiz creation*/}
-                        <Button variant="outline-dark" style={{ marginRight: '10px' }}>Exit</Button>
+                        {/*<Button variant="outline-dark" style={{ marginRight: '10px' }}>Exit</Button>*/}
                         {/*Button to save the quiz*/}
-                        <Button variant="dark">Save</Button>
+                        <Button variant="dark" onClick={handleSave}>Save</Button>
                     </Navbar>
                 </Navbar.Collapse>
             </Container>
