@@ -36,8 +36,14 @@ export function Creation() {
     {/*Show when called, for modal and dropdowns*/
     }
     const {state} = useLocation()
+    const navigate = useNavigate()
+
     if (!state) {
         alert("No state!")
+        window.location.href = "/"
+        navigate("/")
+
+
     }
     const {
         id: qnid,
@@ -100,8 +106,7 @@ export function Creation() {
 
 
     const dispatch = useDispatch()
-    const navigate = useNavigate()
-    function save() {
+    async function save() {
         const data = getCorrectAndOptions()
         const question = {
             id: qnid,
@@ -114,6 +119,7 @@ export function Creation() {
             options: data.options.current
         }
         dispatch(putQuestion({id: qnid, question}))
+
         navigate("/create")
     }
 
