@@ -1,4 +1,5 @@
 import {Question} from "../Question.ts";
+import {JSON_HEADERS} from "./utils.ts";
 
 export async function saveQuiz(q:  {[id: string]: Question}, title: string, description: string) {
     // await fetch()
@@ -35,10 +36,7 @@ export async function saveQuiz(q:  {[id: string]: Question}, title: string, desc
     await fetch("/api/quiz/create-quiz", {
         method: "POST",
         body: JSON.stringify(reqBody),
-        headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        }
+        headers: JSON_HEADERS
     })
 
 }
