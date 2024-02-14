@@ -1,14 +1,34 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
-import './RewardsList.css'
+import './RewardsList.css';
 
 const RewardsList = () => {
   const [userPoints, setUserPoints] = useState(0);
 
-  const handleRedeem = (points, itemName) => {
+  const handleRedeem = async (points, itemName) => {
     const confirmation = window.confirm(`Do you want to spend ${points} points to redeem ${itemName}?`);
     if (confirmation) {
-      alert(`Item ${itemName} has been redeemed. An email will be sent with the redemption information.`);
+      try {
+        const response = await fetch('http://localhost:3000/redeem', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            itemName: itemName,
+            email: 'javinjj.22@ichat.sp.edu.sg' // Update with the user's email
+          })
+        });
+
+        if (response.ok) {
+          alert(`Item ${itemName} has been redeemed. An email will be sent with the redemption information.`);
+        } else {
+          alert('Failed to redeem item. Please try again later.');
+        }
+      } catch (error) {
+        console.error('Error redeeming item:', error);
+        alert('Failed to redeem item. Please try again later.');
+      }
     }
   };
 
