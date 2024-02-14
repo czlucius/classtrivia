@@ -2,9 +2,34 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import './RewardsList.css'
+import { getUsername } from "../services/userDetails.ts";
 
 const RewardsList = () => {
   const [userPoints, setUserPoints] = useState(0);
+
+  useEffect(() => {
+    async function fetchUserPoints() {
+      try {
+        const response = await fetch('http://localhost:3000/userPoints', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserPoints(data.userPoints);
+        } else {
+          console.error('Failed to fetch user points');
+        }
+      } catch (error) {
+        console.error('Error fetching user points:', error);
+      }
+    }
+
+    fetchUserPoints();
+  }, []); 
 
   const handleRedeem = async (points, itemName) => {
     const confirmation = window.confirm(`Do you want to spend ${points} points to redeem ${itemName}?`);
@@ -17,7 +42,7 @@ const RewardsList = () => {
           },
           body: JSON.stringify({
             itemName: itemName,
-            userId: 'userId_here' // Pass user ID here
+            userId: 'userId_here'
           })
         });
 
@@ -71,4 +96,3 @@ const RewardsList = () => {
 };
 
 export default RewardsList;
-
