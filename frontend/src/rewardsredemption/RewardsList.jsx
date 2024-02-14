@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
-import './RewardsList.css';
+import './RewardsList.css'
 
 const RewardsList = () => {
-  const [userPoints, setUserPoints] = useState(0);
+  const [userPoints, setUserPoints] = useState(100);
 
   const handleRedeem = async (points, itemName) => {
     const confirmation = window.confirm(`Do you want to spend ${points} points to redeem ${itemName}?`);
