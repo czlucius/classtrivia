@@ -3,11 +3,11 @@ import nodemailer from 'nodemailer';
 import { v4 as uuidv4 } from 'uuid'; // Generating unique redemption codes
 import cors from 'cors';
 
-const app = express();
+const emailSender = express.Router();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
-app.use(cors());
+emailSender.use(express.json());
+emailSender.use(cors());
 
 const transporter = nodemailer.createTransport({
   host: 'smtp-mail.outlook.com',
@@ -20,7 +20,7 @@ const transporter = nodemailer.createTransport({
 });
 
 
-app.post('/redeem', async (req, res) => {
+emailSender.post('/redeem', async (req, res) => {
   try {
     const { itemName, email } = req.body;
 
@@ -52,7 +52,5 @@ app.post('/redeem', async (req, res) => {
   }
 });
 
+export default emailSender;
 
-app.listen(3000, () => {
-  console.log("listening on 3000")
-})
