@@ -1,3 +1,5 @@
+// RewardsList.jsx
+
 import React, { useState } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import './RewardsList.css'
@@ -16,12 +18,14 @@ const RewardsList = () => {
           },
           body: JSON.stringify({
             itemName: itemName,
-            email: 'javinjj.22@ichat.sp.edu.sg' // Update with the user's email
+            userId: 'userId_here' // Pass user ID here
           })
         });
 
         if (response.ok) {
-          alert(`Item ${itemName} has been redeemed. An email will be sent with the redemption information.`);
+          const data = await response.json();
+          setUserPoints(data.userPoints);
+          alert(`Item ${itemName} has been redeemed.`);
         } else {
           alert('Failed to redeem item. Please try again later.');
         }
@@ -68,3 +72,4 @@ const RewardsList = () => {
 };
 
 export default RewardsList;
+
