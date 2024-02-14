@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import './RewardsList.css'
