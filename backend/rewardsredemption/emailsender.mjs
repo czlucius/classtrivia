@@ -1,31 +1,39 @@
 import express from 'express';
 import nodemailer from 'nodemailer';
 import { v4 as uuidv4 } from 'uuid'; // Generating unique redemption codes
+import cors from 'cors';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-
+app.use(cors());
 
 const transporter = nodemailer.createTransport({
-  service: 'Gmail',
+  host: 'smtp-mail.outlook.com',
+  port: 587,
+  secure: false,
   auth: {
-    user: 'classtriviasg@gmail.com', 
-    pass: 'Y;2*TN{tAD`}cf9H' 
+    user: 'classtrivia@hotmail.com',
+    pass: 'Y;2*TN{tAD`}cf9H'
   }
 });
+
 
 app.post('/redeem', async (req, res) => {
   try {
     const { itemName, email } = req.body;
 
+    console.log('Received redeem request:', itemName, email);
+
     // Generate redemption code
     const redemptionCode = uuidv4();
 
+    console.log('Generated redemption code:', redemptionCode);
+
     // Send email with redemption code
     await transporter.sendMail({
-      from: 'classtriviasg@gmail.com', 
+      from: 'classtrivia@hotmail.com', 
       to: email || 'javinjj.22@ichat.sp.edu.sg', // Default to my email for testing if none included
       subject: 'Redemption Information',
       html: `
@@ -35,6 +43,8 @@ app.post('/redeem', async (req, res) => {
       `
     });
 
+    console.log('Email sent successfully');
+
     res.status(200).json({ message: 'Email sent successfully.' });
   } catch (error) {
     console.error('Error sending email:', error);
@@ -42,6 +52,7 @@ app.post('/redeem', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+
+app.listen(3000, () => {
+  console.log("listening on 3000")
+})
