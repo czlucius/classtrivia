@@ -3,12 +3,28 @@ import User from '../data/users.mjs';
 
 const pointsHandler = express.Router();
 
-// Redemption route
+pointsHandler.get('/userPoints', async (req, res) => {
+  try {
+    
+    const username = getUsername(); 
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    return res.status(200).json({ userPoints: user.points });
+  } catch (error) {
+    console.error('Error fetching user points:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 pointsHandler.post('/redeem', async (req, res) => {
   try {
     const { itemName, userId } = req.body; 
 
-    // Retrieve user from database
+
     const user = await User.findById(userId);
 
     // Check if user exists
