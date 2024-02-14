@@ -1,16 +1,8 @@
 import './App.css'
 import {createBrowserRouter, Route, RouterProvider, Routes} from "react-router-dom";
-import {Home} from "./pages/Home.tsx";
 import {Navigation} from "./components/Navigation.tsx";
 import {NotFound404} from "./pages/NotFound404.tsx";
-import {Auth, AuthRegister} from "./pages/Auth.tsx";
-// import {RegistrationComplete} from "./pages/RegistrationComplete.tsx";
-import Creation from "./create/create.jsx";
-import CreateQuiz from "./create/createquiz.jsx";
-import QuizLibrary from "./library/library.jsx";
-import StartQuiz from './start/startquiz.jsx';
-
-
+import LeaderboardPage from "./leaderboard/leaderboard.jsx"; // Import LeaderboardPage
 
 const router = createBrowserRouter([
     {path: "*", Component: Root}
@@ -24,16 +16,10 @@ function Root() {
     return <div   style={{height: "100vh"}}>
         <Navigation/>
         <Routes>
-            <Route path="/" element={<Home/>}/>
-            {/* <Route path="/signup-complete" element={<RegistrationComplete/>}/> */}
-            <Route path="/create" element={<CreateQuiz/>}/>
-            <Route path="/edit" element={<Creation/>}/>
-            <Route path="/library" element={<QuizLibrary/>}/>
-            <Route path="/startquiz" element={<StartQuiz/>}/>
-            <Route path="/auth" element={<Auth/>}/>
+            <Route path="/" element={<LeaderboardPage/>}/> {/* Show LeaderboardPage directly */}
             <Route path="*" element={<NotFound404/>}/>
         </Routes>
     </div>
 }
 
-export default App
+export default App;

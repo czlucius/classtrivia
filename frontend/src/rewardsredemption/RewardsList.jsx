@@ -61,16 +61,13 @@ const RewardsList = () => {
   };
 
   const rewardsData = [
-    { name: "Singapore Poly T-shirt", points: 20, image: "/tshirt.jpg" },
-    { name: "$5 Bookstore Voucher", points: 10 },
-    { name: "Stationery Set", points: 15 },
-    { name: "Movie Ticket", points: 25 },
-    { name: "Cafeteria Meal Coupon", points: 30 },
-    { name: "USB Drive (16GB)", points: 20 },
-    { name: "Coffee Mug", points: 10 },
-    { name: "Portable Power Bank", points: 30 },
-    { name: "Bluetooth Speaker", points: 40 },
-    { name: "Wireless Earphones", points: 50 }
+    { name: "$5 Bookstore Voucher", points: 10, image: "/voucher.jpg" },
+    { name: "Singapore Poly T-shirt", points: 15, image: "/tshirt.jpg" },
+    { name: "Art Marker Set (60 Pcs)", points: 20, image: "/marker.jpg"  },
+    { name: "USB Drive (16GB)", points: 30, image: "/usb.jpg"  },
+    { name: "Power Bank (10000 mAh)", points: 40, image: "/powerbank.jpg" },
+    { name: "Bluetooth Speaker", points: 50, image: "/speaker.jpg" },
+    { name: "Wireless Earphones", points: 70, image: "/earphones.jpg" }
   ];
 
   return (
@@ -81,7 +78,7 @@ const RewardsList = () => {
         {rewardsData.map((item, index) => (
           <Col key={index}>
             <Card className="item" onClick={() => handleRedeem(item.points, item.name)}>
-              <Card.Img variant="top" src={item.image ? item.image : "/default.png"} />
+              <Card.Img variant="top" src={item.image ? item.image : "/default.jpg"} />
               <div className="points-overlay">{item.points} points</div>
               <div className="redeem-overlay">Redeem this</div>
               <Card.Body>

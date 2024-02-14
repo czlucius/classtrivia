@@ -32,6 +32,8 @@ import pr, {playIo} from "./play/play.ts";
 import {storageRouter} from "./auth/storage.ts";
 import quizRouter from "./quizcreation/quizController.js";
 
+import leaderboardRouter from "./leaderboard/leaderboard.mjs";
+
 // redisClient.on("connect", () => {
 //     console.log("Connected to Redis!")
 // })
@@ -44,8 +46,9 @@ app.use("/api/auth", authRouter)
 app.use("/api/play", pr.playRouter)
 app.use("/api/storage", storageRouter)
 app.use("/api/quiz", quizRouter)
-app.use('/points', pointsHandler);
-app.use('/email', emailSender);
+app.use("/api/pointshandler", pointsHandler)
+app.use("/api/emailsender", emailSender)
+app.use("/api/leaderboard", leaderboardRouter)
 io.use(playIo)
 
 // io.on("connection", (socket) => {
