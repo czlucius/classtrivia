@@ -1,10 +1,10 @@
 import express from 'express';
 import User from '../data/users.mjs';
 
-const router = express.Router();
+const pointsHandler = express.Router();
 
 // Redemption route
-router.post('/redeem', async (req, res) => {
+pointsHandler.post('/redeem', async (req, res) => {
   try {
     const { itemName, userId } = req.body; 
 
@@ -34,4 +34,4 @@ router.post('/redeem', async (req, res) => {
   }
 });
 
-export default router;
+export default pointsHandler;
