@@ -18,6 +18,9 @@ export const io = new socketio.Server(httpServer)
 
 import { authRouter } from './auth/users.mjs';
 
+import pointsHandler from './rewardsredemption/pointshandler.mjs';
+import emailSender from './rewardsredemption/emailsender.mjs';
+
 //
 // const {createClient} = require("redis")
 // const redisClient = createClient({
@@ -41,6 +44,8 @@ app.use("/api/auth", authRouter)
 app.use("/api/play", pr.playRouter)
 app.use("/api/storage", storageRouter)
 app.use("/api/quiz", quizRouter)
+app.use('/points', pointsHandler);
+app.use('/email', emailSender);
 io.use(playIo)
 
 // io.on("connection", (socket) => {
