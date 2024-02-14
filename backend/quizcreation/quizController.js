@@ -22,9 +22,10 @@ quizRouter.post('/create-quiz', async (req, res) => {
     }]
      */
     const quizData = {
+      _id: req.body._id,
       title: req.body.title,
       description: req.body.description,
-      questions: req.body.questions
+      questions: req.body.questions,
     }
 
     console.log(req.body, quizData)
@@ -39,4 +40,3 @@ quizRouter.post('/create-quiz', async (req, res) => {
 });
 
 export default quizRouter;
-

@@ -1,7 +1,7 @@
 import {Question} from "../Question.ts";
 import {JSON_HEADERS} from "./utils.ts";
 
-export async function saveQuiz(q:  {[id: string]: Question}, title: string, description: string) {
+export async function saveQuiz(q:  {[id: string]: Question}, title: string, description: string, _id: string | null = null) {
     // await fetch()
     // Upload the image first
 
@@ -31,8 +31,16 @@ export async function saveQuiz(q:  {[id: string]: Question}, title: string, desc
     }
 
     const reqBody = {
-        title, description, questions: qnList
+        
+        title,
+        description,
+        questions: qnList
+    };
+
+    if (_id !== null) {
+        reqBody["_id"] = _id;
     }
+    
     await fetch("/api/quiz/create-quiz", {
         method: "POST",
         body: JSON.stringify(reqBody),

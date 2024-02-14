@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Container,
     Nav,
@@ -12,12 +12,11 @@ import {
     Col, Image
 
 } from "react-bootstrap";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useLocation} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
-import {putQuestion, removeQuestion} from "../services/questionStore";
+import {putQuestion, removeQuestion, setQuestions} from "../services/questionStore";
 import {updateDesc, updateTitle} from "../services/quizStore";
 import {saveQuiz} from "../services/questionApi.ts";
-
 export function Create() {
     // This state and function control the visibility of the modal
     const [show, setShow] = useState(false);
@@ -39,6 +38,20 @@ export function Create() {
         console.log("new ", newQuestion, newQuestion.id)
         dispatch(putQuestion({id: newQuestion.id, question:newQuestion}))
     };
+    useEffect(() => {
+        if (location.state) {
+            const { title, description, questions } = location.state;
+            dispatch(updateTitle(title));
+            dispatch(updateDesc(description));
+            dispatch(setQuestions(questions));
+        }
+    }, [location.state]);
+    // useEffect(() => {
+    //     const {state} = useLocation()
+    //     dispatch(setQuestions({
+    //         questions: state
+    //     }))
+    // }, [])
     const questions = useSelector((state) => {
         console.log("question", state.question)
         return state.question

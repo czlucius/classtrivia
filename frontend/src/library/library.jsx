@@ -93,7 +93,9 @@ export function QuizLibrary() {
                 <Card.Text>{quiz.description}</Card.Text>
             </Card.Body>
             <Card.Footer>
-    <Button variant="primary" style={{ width: '100px', height: '40px' }} onClick={() => navigate('/create')}>
+    <Button variant="primary" style={{ width: '100px', height: '40px' }} onClick={() => navigate('/create', {
+        state: quiz
+    })}>
         Open
     </Button>
     <Button variant="secondary" style={{ width: '100px', height: '40px' }} disabled>
