@@ -2,6 +2,7 @@ import {Alert, Button, Form, Image, InputGroup, Tab, Tabs} from "react-bootstrap
 import {useRef, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {At, Search} from "react-bootstrap-icons";
+import {JSON_HEADERS} from "../services/utils.ts";
 
 
 export const Auth = () => {
@@ -48,10 +49,7 @@ export const AuthLogin = () => {
         const result = await (await fetch("/api/auth/login", {method: "post", body: JSON.stringify({
             email: e.target.email.value,
             password: e.target.password.value
-            }), headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            }})).json()
+            }), headers: JSON_HEADERS})).json()
         if (result.error) {
             // error
             setError(result.errorMsg)
@@ -180,7 +178,7 @@ export const AuthRegister = () => {
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>
-                        <Form.Switch name="student" label="I am a student" defaultChecked required/>
+                        <Form.Switch name="student" label="I am a student" defaultChecked/>
                     </Form.Label>
                 </Form.Group>
                 <Button

@@ -9,6 +9,7 @@ const quizSchema = new mongoose.Schema({
         typ: String,
         image: String,
         options: [String],
+        // TODO: Teacher can also access this property
         correct: [String],
         score: Number,
         seconds: Number

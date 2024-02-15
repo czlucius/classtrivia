@@ -47,7 +47,7 @@ export function Creation() {
     }
     const {
         id: qnid,
-        type: qntype,
+        typ: qntype,
         options: qnoptions1,
         title: qntitle,
         seconds: qnseconds,
@@ -75,9 +75,9 @@ const handleShowLeaderboard = () => setShowLeaderboard(true);
 
     const [timeLimit, setTimeLimit] = useState(qnseconds ?? 60);
 
-    const [questionType, setQuestionType] = useState(qntype);
+    const [questionType, setQuestionType] = useState(qntype ?? "MCQ");
 
-    const [point, setPoint] = useState(qnpoint)
+    const [point, setPoint] = useState(qnpoint ?? 100)
 
     const [load, setLoad] = useState(false)
     function showSpinner(callback) {
@@ -103,20 +103,15 @@ const handleShowLeaderboard = () => setShowLeaderboard(true);
         }
     };
 
-    useEffect(() => {
-        const timer = countdown > 0 && setInterval(() => setCountdown(countdown - 1), 1000);
-        return () => clearInterval(timer);
-    }, [countdown]);
-
 
     const dispatch = useDispatch()
     async function save() {
         const data = getCorrectAndOptions()
         const question = {
             id: qnid,
-            type: questionType,
+            typ: questionType,
             image: backgroundImage,
-            point,
+            score: point,
             title,
             seconds: timeLimit,
             correct: data.correct,
@@ -272,7 +267,7 @@ const handleShowLeaderboard = () => setShowLeaderboard(true);
                     </Navbar.Collapse>
 
                     <div style={{display: 'flex', justifyContent: 'flex-end'}}>
-                        <Button variant="info" onClick={handleShowOffcanvas} className="ms-2 me-2">
+                        <Button variant="info" onClick={() => setShowOffcanvas(true)} className="ms-2 me-2">
                             Question Settings
                         </Button>
                         <Button variant="primary" onClick={save}>
@@ -284,7 +279,7 @@ const handleShowLeaderboard = () => setShowLeaderboard(true);
             </Navbar>
 
             {/* QUESTION SETTINGS */}
-            <Offcanvas show={showOffcanvas} onHide={handleCloseOffcanvas} placement='end'>
+            <Offcanvas show={showOffcanvas} onHide={() => setShowOffcanvas(false)} placement='end'>
                 <Offcanvas.Header closeButton>
                     <Offcanvas.Title>Settings</Offcanvas.Title>
                 </Offcanvas.Header>

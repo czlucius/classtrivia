@@ -20,6 +20,7 @@ import {JSON_HEADERS} from "../services/utils";
 import {playSocket, socketManager} from "../services/sockets.ts";
 import {Socket} from "socket.io-client";
 import {getCookie} from "../services/persistence.ts";
+import librarybg from "../library/librarybg.png";
 function getUrlForCode(code) {
     const root = location.protocol + '//' + location.host
     root + "/start"
@@ -59,6 +60,16 @@ export interface Quiz {
 }
          */
 
+        manageSocket.current = socketManager.socket("/api/manage", {
+            auth: {token: getCookie("ClassTrivia-Token")}
+        })
+        console.log("quizId", quizId)
+
+        manageSocket.current.on("users", response => {
+            console.log("users response", response)
+            setUsernames(response)
+        })
+
         async function start() {
 
             const response = await fetch("/api/play/createRoom", {
@@ -82,6 +93,20 @@ export interface Quiz {
         void start()
     }, [state]);
 
+    <Image src={{objectFit: ""}}/>
+    useEffect(() => {
+        // Set the background image on the html element
+        document.documentElement.style.backgroundImage = `url(/water.gif)`;
+        document.documentElement.style.backgroundSize = "cover";
+        document.documentElement.style.backgroundAttachment = 'fixed';
+
+        // Reset the background image when the component unmounts
+        return () => {
+            document.documentElement.style.backgroundImage = null;
+            document.documentElement.style.backgroundSize = null;
+            document.documentElement.style.backgroundAttachment = null;
+        };
+    }, []);
 
     // useEffect(() => {
     // const storedUsernames = localStorage.getItem('usernames');
@@ -91,25 +116,21 @@ export interface Quiz {
     // }, []);
     let manageSocket = useRef();
 
-    useEffect(() => {
-        manageSocket.current = socketManager.socket("/api/manage", {
-            auth: {token: getCookie("ClassTrivia-Token")}
-        })
-        console.log("quizId", quizId)
-
-        manageSocket.current.on("users", response => {
-            console.log("users response", response)
-            setUsernames(response)
-        })
-    }, []);
 
 
-    function begin() {
-        navigate("/quiz", {
+    async function begin() {
+        if (usernames.length < 1) {
+            alert("Add at least one user to start!")
+            return
+        }
+
+        navigate("/present", {
             state: {
-
+                id: quizId,
+                pin: pin
             }
         })
+
     }
 
     // function getValue()
@@ -192,7 +213,7 @@ export interface Quiz {
                 </Col>
                 <Col md="auto" className="d-flex flex-column align-items-center">
                     <h4>QR Code</h4>
-                    <QRCode value={pin} size={120} />
+                    <QRCode value={`${window.origin}/quiz/${pin}`} size={120} />
                 </Col>
             </Row>
         </Col>
@@ -202,11 +223,10 @@ export interface Quiz {
     <div
         style={{
             bottom: 0,
-            backgroundColor: "white",
             padding: "10px",
         }}
     >
-        <p>
+        <p style={{color: "white"}}>
         Number of users: {usernames.length}
         </p>
         <div>

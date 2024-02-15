@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import {
     Container,
     Nav,
@@ -12,10 +12,10 @@ import {
     Col, Image
 
 } from "react-bootstrap";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
-import {putQuestion, removeQuestion} from "../services/questionStore";
-import {updateDesc, updateTitle} from "../services/quizStore";
+import {putQuestion, removeQuestion, setQuestions} from "../services/questionStore";
+import {update_Id, updateDesc, updateTitle} from "../services/quizStore";
 import {saveQuiz} from "../services/questionApi.ts";
 
 export function Create() {
@@ -28,7 +28,7 @@ export function Create() {
      const handleAddButton = () => { // Function to add a new button
         const newQuestion = {
             id: crypto.randomUUID(),
-            type: "MCQ",
+            typ: "MCQ",
             options: [],
             title: "Question Title",
             seconds: 60,
@@ -39,9 +39,29 @@ export function Create() {
         console.log("new ", newQuestion, newQuestion.id)
         dispatch(putQuestion({id: newQuestion.id, question:newQuestion}))
     };
+    console.log("b2984759")
+    const {state} = useLocation()
+    useEffect(() => {
+
+        console.log("inistate", state)
+        if (state) {
+            const { title, description, questions, _id } = state;
+            console.log("dispatchers")
+            dispatch(updateTitle(title));
+            dispatch(updateDesc(description));
+            dispatch(setQuestions(questions));
+            // dispatch(update_Id(_id))
+            console.log("I get a state ofaaa ", state, "and id of", _id)
+            console.log("_id of", _id)
+        }
+    }, [state]);
+
     const questions = useSelector((state) => {
         console.log("question", state.question)
         return state.question
+    })
+    const gid = useSelector(state => {
+        return state.quiz._id
     })
     const handleRemoveButton = (id) => { // Function to remove a button by its id
         dispatch(removeQuestion({id}))
@@ -58,8 +78,11 @@ export function Create() {
         })
     }
 
+
     async function handleSave() {
+        console.log("state", gid)
         await saveQuiz(questions, title, desc)
+        navigate("/library")
     }
 
 
@@ -94,7 +117,7 @@ export function Create() {
                         <>
                             {/*Button to open the modal*/}
                             <Button variant="outline-primary" onClick={handleShow}>
-                                Enter a Quiz Title here
+                                {title || "Enter a Quiz Title here" }
                             </Button>
 
                             {/*Modal for entering the quiz title*/}
@@ -187,9 +210,9 @@ export function Create() {
                                 <Card.Text>
                                     {question.title ? `Title: ${question.title}`: null}
                                     <br/>
-                                    Type : {question.type}
+                                    Type : {question.typ}
                                     <br/>
-                                    {question.point} points
+                                    {question.score} points
                                 </Card.Text>
                                 {/*Button to design the question*/}
                                 <Button variant="outline-primary" onClick={() => {showDesign(question)}}>Design</Button>

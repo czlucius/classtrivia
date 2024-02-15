@@ -3,7 +3,8 @@ import {createSlice} from "@reduxjs/toolkit";
 
 const initialState= {
     title: "",
-    desc: ""
+    desc: "",
+    _id: ""
 }
 const quizSlice = createSlice({
     name: 'quiz',
@@ -16,11 +17,14 @@ const quizSlice = createSlice({
         updateDesc: (state, action) => {
             const desc = action.payload
             state["desc"] = desc
-        }
+        },
+        update_Id: (state, action) => {
+            state["_id"] = action.payload
+}
 
     }
 });
 
-export const { updateTitle, updateDesc } = quizSlice.actions;
+export const { updateTitle, updateDesc, update_Id } = quizSlice.actions;
 
 export default quizSlice.reducer;

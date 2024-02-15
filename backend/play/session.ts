@@ -8,19 +8,28 @@ import {Question} from "./Question";
 //     current: number
 // }
 
-import mongoose  from 'mongoose';
+import mongoose, {Types} from 'mongoose';
 import {Schema} from "mongoose";
+import ObjectId = Types.ObjectId
 const sessionSchema = new Schema({
     _id: String,
     current: Number,
     quiz: { type: String, ref: 'Quiz' },
     users: [{type: String, ref: 'User'}],
     owner: {type: String, ref: 'User'},
-    results: [{
-        user: {type: String, ref: 'User'},
-        answers: [String],
-        correct: [Boolean]
-    }]
+    results: {
+        type: Map,
+        of: {
+            user: {type: String, ref: 'User'},
+            answers: [{
+                questionId: String,
+                mine: String,
+                correct: Boolean,
+                modelAns: [String]
+            }],
+            points: Number
+        }
+    }
 });
 
 // @ts-ignore

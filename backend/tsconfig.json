@@ -19,7 +19,7 @@
     "esModuleInterop": true,
     "allowImportingTsExtensions": true
   },
-  "moduleResolution": "nodenext",
+  "moduleResolution": "node12",
   "include": [
     "./**/*.ts"
   ],

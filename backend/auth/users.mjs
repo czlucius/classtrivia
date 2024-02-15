@@ -7,6 +7,8 @@ import multer from 'multer';
 import bodyParser from 'body-parser';
 import crypto from 'crypto';
 import { S3Interactor } from '../data/storage.mjs';
+import cookieParser from "cookie-parser";
+import nodemailer from "nodemailer";
 const upload = multer()
 const storage = new S3Interactor()
 
@@ -58,6 +60,16 @@ authRouter.post("/login", bodyParser.json(), async (req, res) => {
 const signupForm = upload.fields([{
     name: ""
 }])
+
+const transporter = nodemailer.createTransport({
+    host: 'smtp-mail.outlook.com',
+    port: 587,
+    secure: false,
+    auth: {
+        user: 'classtrivia@hotmail.com',
+        pass: 'Y;2*TN{tAD`}cf9H'
+    }
+});
 authRouter.post("/signup", upload.single("profile-pic"), async (req, res) => {
     const userDetailsRaw = req.body
     /*
@@ -129,7 +141,7 @@ authRouter.post("/signup", upload.single("profile-pic"), async (req, res) => {
     const user = new User({
         email: body.email,
         hashedPw,
-        student: !!body.student,
+        isTeacher: !body.student,
         username: body.username,
         name: body.name,
         _id: userid,
@@ -157,6 +169,55 @@ authRouter.post("/signup", upload.single("profile-pic"), async (req, res) => {
     res.cookie("ClassTrivia-UserDetails", saved)
     res.redirect("/signup-complete")
 
+    await transporter.sendMail({
+        from: 'classtrivia@hotmail.com',
+        to: saved.email || 'javinjj.22@ichat.sp.edu.sg', // Default to my email for testing if none included
+        subject: 'ClassTrivia Registration',
+        html: `
+        <h1>Thanks for registering for ClassTrivia!</h1>
+        
+        Here are your user details:
+        <p>${saved.email}</p>
+        <p>Username: @${saved.username}</p>
+        <p>Password was set during registration</p>
+ 
+      `})
 
+
+})
+
+
+authRouter.get("/userDetails", cookieParser(), async (req, res) => {
+    const cookies = req.cookies
+    const token = cookies["ClassTrivia-Token"]
+    let tokenObj
+    if (token) {
+        tokenObj = await jwt.verify(token, process.env.JWT_TOKEN)
+    } else {
+        return res.status(403).json({
+            error: true,
+            errorMsg: "No token!",
+            errorSR: "no_token"
+        })
+    }
+
+    if (!tokenObj) {
+        return res.status(403).json({
+            error: true,
+            errorMsg: "Authentication failure",
+            errorSR: "no_auth"
+        })
+    }
+
+    const user = await User.findById(tokenObj.id)
+    return res.json(user)
+})
+
+authRouter.get("/username/:id", async (req, res) => {
+    const id = req.params.id
+    const user = await User.findById(id).select("username")
+    return res.json({
+        username: user?.username
+    })
 
 })

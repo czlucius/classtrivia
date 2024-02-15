@@ -8,9 +8,10 @@ export interface Question {
     //     correct: boolean
     // }
     score: number
-    correct: string
+    correct: string[]
     typ: string
     options: string[]
     seconds: number
+    toJSON(): JSON
 }
 

@@ -1,5 +1,5 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {Question} from "../Question.ts";
+import {Question} from "../objects/Question.ts";
 
 const initialState: {
     [id: string]: Question
@@ -15,10 +15,12 @@ const questionSlice = createSlice({
          */
         putQuestion: (state, action) => {
             const {id, question} = action.payload
-            state[id] = question
+            console.log("i get id of123", id, question)
+            return {...state, [id]: question}
         },
         clearQuestions: (state, action) => {
             state = {}
+            return state
         },
         removeQuestion: (state, action) => {
             const {id} = action.payload
@@ -29,10 +31,26 @@ const questionSlice = createSlice({
             const {title, desc} = action.payload
             state["title"] = title
             state["desc"] = desc
+        },
+        setQuestions: (state, action) => {
+            const questions = action.payload
+            console.log("set qns", questions)
+            const a = {}
+            console.log("qjs", questions )
+            for (const key in questions ) {
+                const q = questions[key]
+                console.log("iter111", key, q)
+
+                a[q._id] = q
+            }
+            console.log("ayit42", a)
+
+            return a
         }
+
     }
 });
 
-export const { putQuestion, removeQuestion, clearQuestions} = questionSlice.actions;
+export const { putQuestion, removeQuestion, clearQuestions, setQuestions} = questionSlice.actions;
 
 export default questionSlice.reducer;

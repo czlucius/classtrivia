@@ -4,15 +4,19 @@ import {Button, Form, Image, Modal} from "react-bootstrap";
 import {getUsername} from "../services/userDetails.ts";
 import {ReactState} from "../services/utils.ts";
 
+import quizbg from "./quizbg2.png";
+import quizlogo from "./quizlogo.png";
+
 export const JoinQuiz = ({gamePinState}: {gamePinState: ReactState<string>}) => {
     const [error, setError] = useState(null)
     const [showConfirm, setShowConfirm] = useState(false);
+    const [gamePin, setGamePin] = gamePinState
 
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         console.log("submit")
-        playSocket.emit("joinSession", gamePinState[0], (response) => {
+        playSocket.emit("joinSession", gamePin, (response) => {
             console.log(response)
             if (response.success) {
                 setShowConfirm(true);

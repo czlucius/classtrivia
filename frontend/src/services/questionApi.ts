@@ -1,7 +1,7 @@
-import {Question} from "../Question.ts";
+import {Question} from "../objects/Question.ts";
 import {JSON_HEADERS} from "./utils.ts";
 
-export async function saveQuiz(q:  {[id: string]: Question}, title: string, description: string) {
+export async function saveQuiz(q:  {[id: string]: Question}, title: string, description: string, _id: string | undefined = undefined) {
     // await fetch()
     // Upload the image first
 

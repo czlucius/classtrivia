@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema({
     username: String,
     hashedPw: String,
     classes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Class' }],
-    points: Number,
+    points: [Number],
     profilePicUrl: String,
     isTeacher: Boolean,
     _id: String,
