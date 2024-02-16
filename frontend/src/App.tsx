@@ -1,8 +1,8 @@
 import './App.css'
 import {createBrowserRouter, Route, RouterProvider, Routes} from "react-router-dom";
-import {Home} from "./pages/Home.tsx";
 import {Navigation} from "./components/Navigation.tsx";
-
+import {NotFound404} from "./pages/NotFound404.tsx";
+import LeaderboardPage from "./leaderboard/leaderboard.jsx"; // Import LeaderboardPage
 
 const router = createBrowserRouter([
     {path: "*", Component: Root}
@@ -13,12 +13,13 @@ function App() {
 }
 
 function Root() {
-    return <div >
+    return <div   style={{height: "100vh"}}>
         <Navigation/>
         <Routes>
-            <Route path="/" element={<Home/>}/>
+            <Route path="/" element={<LeaderboardPage/>}/> {/* Show LeaderboardPage directly */}
+            <Route path="*" element={<NotFound404/>}/>
         </Routes>
     </div>
 }
 
-export default App
+export default App;

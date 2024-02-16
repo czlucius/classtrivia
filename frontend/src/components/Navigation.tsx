@@ -2,7 +2,7 @@ import {Container, Nav, Navbar} from "react-bootstrap";
 import "./navigation.css"
 export const Navigation = () => {
     return (
-        <Navbar expand="lg" className="bg-body-tertiary border border-2 m-2 rounded rounded-4">
+        <Navbar expand="lg" className="bg-body-tertiary border border-2 rounded rounded-4" style={{margin: 10}}>
             <Container className="w-100">
                 <Navbar.Brand href="/" className=""><b>ClassTrivia</b></Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav"/>
